@@ -1,56 +1,45 @@
-const address = document.querySelector('#address')
-const dropDown = document.querySelector('#autocomplete')
-const addressNumber = 10
+const addressBox = document.querySelector('#address')
+const addressNumber = 5
+let address = ''
+const options = {
+  method: 'GET',
+  url: 'https://spott.p.rapidapi.com/places/autocomplete',
+  params: { q: 'Sea', country: 'US,CA', skip: '0', limit: '10' },
+  headers: {
+    'X-RapidAPI-Host': 'spott.p.rapidapi.com',
+    'X-RapidAPI-Key': process.env.RAPID_API_KEY
+  }
+};
 
-
-
-address.addEventListener('keypress', fetchAddress => {
+addressBox.addEventListener('keypress', fetchAddress => {
   console.log('hello')
 
-  const options = {
-    method: 'GET',
-    url: 'https://spott.p.rapidapi.com/places/autocomplete',
-    params: { q: 'Sea', country: 'US,CA', skip: '0', limit: '10' },
-    headers: {
-      'X-RapidAPI-Host': 'spott.p.rapidapi.com',
-      'X-RapidAPI-Key': 'c4xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdc'
-    }
-  };
+  autoCompleteListener(addressBox)
 
-  axios.request(options).then(function (response) {
-    createDropdown(response.data)
-    console.log(response.data);
-  }).catch(function (error) {
-    console.error(error);
-  });
 })
 
-const createDropdown = (address) => {
-  if (address) {
-    for (let i = 0; i < addressNumber; i++) {
-      const optionElement = document.createElement('option')
-      dropDown.appendChild(optionElement)
-      optionElement.value = address
+function autoCompleteListener (addressInput, event) {
+  if (addressInput) {
+    if (addressInput.value.length > 0) {
+      if (address != addressInput.value) {
+
+        axios.request(options).then(function (response) {
+          addSuggestions(response.data)
+          console.log(response.data)
+        }).catch(function (error) {
+          console.error(error)
+        })
+      }
     }
   }
+
+
+  address = addressInput.value
 }
 
-// const fetchAddress = () => {
-//   const options = {
-//     method: 'GET',
-//     url: 'https://spott.p.rapidapi.com/places/autocomplete',
-//     params: { q: 'Sea', country: 'US,CA', skip: '0', limit: '10' },
-//     headers: {
-//       'X-RapidAPI-Host': 'spott.p.rapidapi.com',
-//       'X-RapidAPI-Key': 'c4xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxdc'
-//     }
-//   };
 
-//   axios.request(options).then(function (response) {
-//     createDropdown(response.data)
-//     console.log(response.data);
-//   }).catch(function (error) {
-//     console.error(error);
-//   });
-// }
+const addSuggestions = (response) => {
+  var suggestions = document.querySelector('#suggestions')
+  suggestions.innerHTML = JSON.stringify(response, null, ' ')
+}
 
